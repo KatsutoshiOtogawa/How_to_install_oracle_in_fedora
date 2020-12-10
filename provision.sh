@@ -31,11 +31,6 @@ echo export PATH=\$PATH:\$ORACLE_HOME/bin >> ~/.bash_profile
 echo export ORACLE_PASSWORD=$ORACLE_PASSWORD >> ~/.bash_profile
 echo '' >> ~/.bash_profile
 
-# # set sqlplus 
-# echo '# sqlplus decoding' >> ~/.bash_profile
-# echo 'export NLS_LANG=Japanese_Japan.AL32UTF8' >> ~/.bash_profile
-# echo '' >> ~/.bash_profile
-
 # oracle OS user.
 su - oracle -c 'echo "# set oracle environment variable"  >> ~/.bash_profile'
 su - oracle -c 'echo export ORACLE_SID=XE >> ~/.bash_profile'
