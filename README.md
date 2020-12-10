@@ -1,0 +1,1 @@
+# How_to_install_oracle_in_fedora
