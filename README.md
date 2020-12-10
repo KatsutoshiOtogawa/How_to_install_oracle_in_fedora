@@ -10,13 +10,13 @@ dnf -y install http://mirror.centos.org/centos/7/os/x86_64/Packages/compat-libst
 dnf -y install libnsl
 
 # pre install packages.these packages are required expcept for oraclelinux.
-curl -o oracle-database-preinstall-18c-1.0-1.el7.x86_64.rpm https://yum.oracle.com/repo/OracleLinux/OL7/latest/x86_64/getPackage/oracle-database-preinstall-18c-1.0-1.el7.x86_64.rpm
+curl -o oracle-database-preinstall-18c-1.0-1.el7.x86_64.rpm -L https://yum.oracle.com/repo/OracleLinux/OL7/latest/x86_64/getPackage/oracle-database-preinstall-18c-1.0-1.el7.x86_64.rpm
 dnf -y install oracle-database-preinstall-18c-1.0-1.el7.x86_64.rpm
 
 # silent install oracle database.
 mkdir /xe_logs 
 ORACLE_PASSWORD=yourpassword
-curl -o oracle-database-xe-18c-1.0-1.x86_64.rpm https://download.oracle.com/otn-pub/otn_software/db-express/oracle-database-xe-18c-1.0-1.x86_64.rpm
+curl -o oracle-database-xe-18c-1.0-1.x86_64.rpm -L https://download.oracle.com/otn-pub/otn_software/db-express/oracle-database-xe-18c-1.0-1.x86_64.rpm
 dnf -y install oracle-database-xe-18c-1.0-1.x86_64.rpm > /xe_logs/XEsilentinstall.log 2>&1
 sed -i 's/LISTENER_PORT=/LISTENER_PORT=1521/' /etc/sysconfig/oracle-xe-18c.conf
 (echo $ORACLE_PASSWORD; echo $ORACLE_PASSWORD;) | /etc/init.d/oracle-xe-18c configure >> /xe_logs/XEsilentinstall.log 2>&1
@@ -28,4 +28,25 @@ sed -i 's/LISTENER_PORT=/LISTENER_PORT=1521/' /etc/sysconfig/oracle-xe-18c.conf
 # these command is operationing in oracle user. oracle is OS user.oracle user belong to dbaoper.
 echo "startup;" | sqlplus / as sysdba
 launchctl start
+```
+# example script
+this project has Vagrantfile.
+```
+vagrant up
+```
+oracle-fedora environment is being launch.
+# if you want to create vagrant box from vagrant file.
+
+```
+# stop vagrant environment
+vagrant halt
+
+# search virtualbox environment.
+ls -1 ~/VirtualBox\ VMs/
+
+# packaging your vagrant virtualbox environment. 
+vagrant package --base <yourvirtualbox_environment_name> --output fedora33-oracle-xe-18.box
+
+# add box
+vagrant box add localhost/fedora33-oracle-xe-18 fedora33-oracle-xe-18.box
 ```
