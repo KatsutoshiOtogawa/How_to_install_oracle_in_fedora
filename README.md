@@ -25,7 +25,7 @@ sed -i 's/LISTENER_PORT=/LISTENER_PORT=1521/' /etc/sysconfig/oracle-xe-18c.conf
 ```
 # oracle database launch and, be available.
 
-# these command is operationing in oracle user. oracle user belong to dbaoper.
+# these command is operationing in oracle user. oracle is OS user.oracle user belong to dbaoper.
 echo "startup;" | sqlplus / as sysdba
 launchctl start
 ```
