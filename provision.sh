@@ -13,7 +13,7 @@ rm oracle-database-preinstall-18c-1.0-1.el7.x86_64.rpm
 mkdir /xe_logs 
 ORACLE_PASSWORD=dicxwjelsicC3lDnrx3
 curl -o oracle-database-xe-18c-1.0-1.x86_64.rpm -L https://download.oracle.com/otn-pub/otn_software/db-express/oracle-database-xe-18c-1.0-1.x86_64.rpm
-echo download finish!
+echo finish downloading oracle database!
 echo installing oracle database...
 dnf -y install oracle-database-xe-18c-1.0-1.x86_64.rpm > /xe_logs/XEsilentinstall.log 2>&1
 rm oracle-database-xe-18c-1.0-1.x86_64.rpm
@@ -40,6 +40,15 @@ su - oracle -c 'echo export ORACLE_BASE=/opt/oracle  >> ~/.bash_profile'
 su - oracle -c 'echo export PATH=\$PATH:\$ORACLE_HOME/bin >> ~/.bash_profile'
 su - oracle -c "echo export ORACLE_PASSWORD=$ORACLE_PASSWORD >> ~/.bash_profile"
 su - oracle -c 'echo "" >> ~/.bash_profile'
+
+
+# change oracle databse mode to archive log mode.
+su - oracle << END
+echo "shutdown immediate" | sqlplus / as sysdba
+echo "startup mount" | sqlplus / as sysdba
+echo "ALTER DATABASE ARCHIVELOG;" | sqlplus / as sysdba
+echo "ALTER DATABASE OPEN;" | sqlplus / as sysdba
+END
 
 # erase fragtation funciton. this function you use vagrant package.
 cat << END >> ~/.bash_profile
