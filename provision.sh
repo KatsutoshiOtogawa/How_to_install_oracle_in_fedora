@@ -13,6 +13,9 @@ systemctl start firewalld
 # port forwarding oracle port 1521.
 firewall-cmd --add-port=1521/tcp --zone=public --permanent
 
+# reload firewall settings.
+firewall-cmd --reload
+
 # compat-libcap1,compat-libstdc++-33 required oracle database.
 # these library needs fedora only.rhel,oracle linux are alredy installed.
 dnf -y install http://mirror.centos.org/centos/7/os/x86_64/Packages/compat-libcap1-1.10-7.el7.x86_64.rpm
