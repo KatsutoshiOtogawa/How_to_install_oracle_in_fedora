@@ -35,7 +35,7 @@ rm oracle-database-preinstall-18c-1.0-1.el7.x86_64.rpm
 mkdir /xe_logs
 
 # set password not to contain symbol. oracle password can't be used symbol.
-ORACLE_PASSWORD=`pwmake 256 | sed 's/\W//g'`
+ORACLE_PASSWORD=`pwmake 128 | sed 's/\W//g'`
 
 curl -o oracle-database-xe-18c-1.0-1.x86_64.rpm -L https://download.oracle.com/otn-pub/otn_software/db-express/oracle-database-xe-18c-1.0-1.x86_64.rpm
 echo finish downloading oracle database!
