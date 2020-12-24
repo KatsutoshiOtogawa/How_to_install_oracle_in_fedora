@@ -1,4 +1,8 @@
+
 dnf -y update
+
+# want to use pwmake. pwmake generate password following os security policy. 
+dnf install -y libpwquality
 
 # for download sample shcmea.
 dnf -y install git
@@ -28,8 +32,11 @@ dnf -y install oracle-database-preinstall-18c-1.0-1.el7.x86_64.rpm
 rm oracle-database-preinstall-18c-1.0-1.el7.x86_64.rpm
 
 # silent install oracle database.
-mkdir /xe_logs 
-ORACLE_PASSWORD=dicxwjelsicC3lDnrx3
+mkdir /xe_logs
+
+# set password not to contain symbol. oracle password can't be used symbol.
+ORACLE_PASSWORD=`pwmake 256 | sed 's/\W//g'`
+
 curl -o oracle-database-xe-18c-1.0-1.x86_64.rpm -L https://download.oracle.com/otn-pub/otn_software/db-express/oracle-database-xe-18c-1.0-1.x86_64.rpm
 echo finish downloading oracle database!
 echo installing oracle database...

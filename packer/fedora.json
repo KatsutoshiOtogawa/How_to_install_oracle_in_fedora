@@ -1,0 +1,64 @@
+
+{
+    "_command": "Build with `packer build --only=virtualbox-iso fedora.json`",
+    "builders": [
+      {
+        "boot_command": [
+          "<tab> linux text biosdevname=0 ks=http://{{ .HTTPIP }}:{{ .HTTPPort}}/ks.cfg<enter><enter>"
+        ],
+        "disk_size": "65536",
+        "guest_additions_path": "VBoxGuestAdditions_{{.Version}}.iso",
+        "guest_os_type": "Fedora_64",
+        "headless": "true",
+        "http_directory": "http",
+        "iso_checksum": "sha256:1f1f018e78f0cc23d08db0c85952344ea5c200e67b672da5b07507c066a52ccf",
+        "iso_urls": [
+          "Fedora-Server-netinst-x86_64-33-1.2.iso",
+          "https://download.fedoraproject.org/pub/fedora/linux/releases/33/Server/x86_64/iso/Fedora-Server-netinst-x86_64-33-1.2.iso"
+        ],
+        "shutdown_command": "{{ user `shutdown_command` }}",
+        "ssh_password": "vagrant",
+        "ssh_username": "vagrant",
+        "ssh_timeout": "10000s",
+        "type": "virtualbox-iso",
+        "vboxmanage": [
+          [
+            "modifyvm", "{{.Name}}", "--memory", "2048"
+          ],
+          [
+            "modifyvm", "{{.Name}}", "--cpus", "1"
+          ]
+        ],
+        "virtualbox_version_file": ".vbox_version",
+        "vm_name": "fedora33-oracle-xe-18"
+      }
+    ],
+    "post-processors": [
+      {
+        "keep_input_artifact": false,
+        "output": "box/{{.Provider}}/fedora33-oracle-xe-18-{{ user `version` }}.box",
+        "type": "vagrant"
+      }
+    ],
+    "provisioners": [
+      {
+        "execute_command": "echo 'vagrant' | {{.Vars}} sudo -S -E sh -ex '{{.Path}}'",
+        "scripts": [
+          "../provision.sh"
+        ],
+        "type": "shell",
+        "expect_disconnect": "true"
+      }
+    ],
+    "variables": {
+    "_comment": "Build with `packer build fedora.json`",
+      "ftp_proxy": "{{env `ftp_proxy`}}",
+      "http_proxy": "{{env `http_proxy`}}",
+      "https_proxy": "{{env `https_proxy`}}",
+      "install_vagrant_key": "true",
+      "no_proxy": "{{env `no_proxy`}}",
+      "rsync_proxy": "{{env `rsync_proxy`}}",
+      "shutdown_command": "echo 'vagrant'|sudo -S shutdown -h now",
+      "version": "0.1.0"
+    }
+}
