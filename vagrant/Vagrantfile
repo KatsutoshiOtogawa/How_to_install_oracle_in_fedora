@@ -78,10 +78,6 @@ Vagrant.configure("2") do |config|
     # Ansible, Chef, Docker, Puppet and Salt are also available. Please see the
     # documentation for more information about their specific syntax and use.
 
-    # this script is oracle launch.lsnrctl,oracle database is not service in fedora.
-    # Therefor, when os launch, this script is always run. 
-    config.vm.provision "shell", path: "./start_oracle.sh", run: "always"
-
     # this script initial script,this script run only fitst time vagrant up.
     config.vm.provision "shell", path: "../provision.sh"
 end
