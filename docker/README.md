@@ -1,7 +1,11 @@
 # docker
 
 ```shell
+# build
 docker build -t localhost/fedora33-oracle-xe-18:1.0 .
+
+# save image
+docker save localhost/fedora33-oracle-xe-18 -o fedora33-oracle-xe-18.tar
 ```
 
 # reference
