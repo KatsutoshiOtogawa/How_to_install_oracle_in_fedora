@@ -23,7 +23,7 @@ doctl projects create
 doctl compute image --public
 
 # show avairable droplet hardware architecture
-doctl compute
+doctl compute size list
 
 # show region list
 doctl compute region list
