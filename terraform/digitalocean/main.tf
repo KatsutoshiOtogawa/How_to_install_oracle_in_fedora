@@ -23,13 +23,17 @@ provider "digitalocean" {
 }
 
 resource "digitalocean_project" "example" {
-  name        = "terraform_project"
+  name        = "How_to_install_oracle_in_fedora"
   description = "orcle database application"
   purpose     = "Oracle Database"
   environment = "Development"
+
+  resources = [
+    digitalocean_droplet.oracle1.urn
+  ]
 }
 
-resource "digitalocean_droplet" "oracle" {
+resource "digitalocean_droplet" "oracle1" {
   image  = "fedora-33-x64"
   name   = "oracle-1"
   # use resion slug

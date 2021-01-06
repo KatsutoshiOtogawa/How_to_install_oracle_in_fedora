@@ -1,7 +1,7 @@
 # install fedora-oracle to digital ocean droplets
 
 ## terraform
-
+reference from [terraform registry](https://registry.terraform.io/providers/digitalocean/digitalocean/latest/docs)
 ## doctl
 doctl is digital ocean 
 ```shell
