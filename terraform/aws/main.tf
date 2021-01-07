@@ -99,7 +99,7 @@ resource "aws_security_group_rule" "inbound_oracle" {
 resource "aws_eip" "main_eip" {
   vpc                       = true
   instance                  = aws_instance.How_to_install_oracle_in_fedora.id
-  # associate_with_private_ip = "10.0.0.12"
+  associate_with_private_ip = aws_instance.How_to_install_oracle_in_fedora.private_ip
   depends_on                = [aws_internet_gateway.main_gw]
 
   tags = {
@@ -116,14 +116,17 @@ resource "aws_nat_gateway" "main_nat" {
   }
 }
 
+# resource "aws_spot_instance_request"
+
 resource "aws_instance" "How_to_install_oracle_in_fedora" {
     
     # from marketplace https://alt.fedoraproject.org/cloud/
     # fedora33
     ami = "ami-0d3ac0b331a940336"
     instance_type = "t2.micro"
+    private_ip = "10.0.1.5"
     # you use instance ssh-key name. check command *aws ec2 describe-key-pairs*.
-    key_name = "aws.rsa"
+    key_name = "id_rsa"
 
     # assign subnet to ec2
     subnet_id = aws_subnet.main_subnet.id
@@ -139,9 +142,8 @@ resource "null_resource" "testinstance" {
   connection {
             host = aws_eip.main_eip.public_ip
             type = "ssh"
-            # user = var.gce_ssh_user
-            user = "fedora"
-            private_key = file("~/.ssh/awsrsa.pem")
+            user = "ec2_user"
+            private_key = file("~/.ssh/id_rsa")
   }
 
   provisioner "remote-exec" {
