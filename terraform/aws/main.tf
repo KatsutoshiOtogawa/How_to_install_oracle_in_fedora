@@ -7,13 +7,6 @@ terraform {
   }
 }
 
-data "template_file" "user_data" {
-  template = file("../../provision.sh")
-  vars = {
-    ORACLE_PASSWORD = ""
-  }
-}
-
 provider "aws" {
   region = "ap-northeast-1"
 }
@@ -110,8 +103,17 @@ resource "aws_eip" "main_eip" {
   depends_on                = [aws_internet_gateway.main_gw]
 
   tags = {
-      project = "How_to_install_oracle_in_fedora"
-    }
+      terraform = "How_to_install_oracle_in_fedora"
+  }
+}
+
+resource "aws_nat_gateway" "main_nat" {
+  subnet_id     = aws_subnet.main_subnet.id
+  allocation_id = aws_eip.main_eip.id
+
+  tags = {
+      terraform = "How_to_install_oracle_in_fedora"
+  }
 }
 
 resource "aws_instance" "How_to_install_oracle_in_fedora" {
@@ -125,21 +127,30 @@ resource "aws_instance" "How_to_install_oracle_in_fedora" {
 
     # assign subnet to ec2
     subnet_id = aws_subnet.main_subnet.id
-
-    # user_data = file("../provision.sh")
-    # user_data = data.template_file.user_data.rendered
-    user_data = <<END
-#!/bin/bash
-    dnf install -y python3
-    dnf install -y https://s3.region.amazonaws.com/amazon-ssm-region/latest/linux_amd64/amazon-ssm-agent.rpm
-    systemctl enable amazon-ssm-agent
-    systemctl start amazon-ssm-agent
-END
-    tags = {
-      project = "How_to_install_oracle_in_fedora"
-      Name = "Oracle instance"
-    }
     
+}
+
+resource "null_resource" "testinstance" {
+
+  depends_on = [
+    aws_instance.How_to_install_oracle_in_fedora
+  ]
+
+  connection {
+            host = aws_eip.main_eip.public_ip
+            type = "ssh"
+            # user = var.gce_ssh_user
+            user = "fedora"
+            private_key = file("~/.ssh/awsrsa.pem")
+  }
+
+  provisioner "remote-exec" {
+    script = "./provision.sh"
+  }
+  provisioner "remote-exec" {
+    script = "../../provision.sh"
+    
+  }
 }
 
 output "public_ip_address" {
