@@ -16,6 +16,7 @@ resource "aws_vpc" "main_vpc" {
   instance_tenancy = "default"
 
   tags = {
+    Name = "oracle_vpc"
     terraform = "How_to_install_oracle_in_fedora"
   }
 }
@@ -24,6 +25,7 @@ resource "aws_internet_gateway" "main_gw" {
   vpc_id = aws_vpc.main_vpc.id
 
   tags = {
+    Name = "oracle_gw"
     terraform = "How_to_install_oracle_in_fedora"
   }
 }
@@ -32,7 +34,7 @@ resource "aws_egress_only_internet_gateway" "egress_gw" {
   vpc_id = aws_vpc.main_vpc.id
 
   tags = {
-    Name = "main"
+    Name = "oracle_routing"
   }
 }
 
@@ -50,15 +52,19 @@ resource "aws_route_table" "main_route" {
   }
 
   tags = {
+    Name = "oracle_routing"
     terraform = "How_to_install_oracle_in_fedora"
   }
 }
 
 resource "aws_subnet" "main_subnet" {
   vpc_id     = aws_vpc.main_vpc.id
-  cidr_block = "10.0.1.0/24"
+  #  = aws_internet_gateway.main_gw
+  availability_zone = 'ap-northeast-1a'
+  cidr_block = "10.0.2.0/24"
 
   tags = {
+    Name = "oracle_subnet"
     terraform = "How_to_install_oracle_in_fedora"
   }
 }
@@ -68,6 +74,7 @@ resource "aws_security_group" "web_server_sg" {
   description = "Allow http and https traffic."
   vpc_id      = aws_vpc.main_vpc.id
   tags = {
+    Name = "oracle_sg"
     terraform = "How_to_install_oracle_in_fedora"
   }
 }
@@ -96,6 +103,18 @@ resource "aws_security_group_rule" "inbound_oracle" {
   security_group_id = aws_security_group.web_server_sg.id
 }
 
+resource "aws_security_group_rule" "outbound_oracle" {
+  type        = "egress"
+  from_port   = 0
+  to_port     = 0
+  protocol    = -1
+  cidr_blocks = [
+    "0.0.0.0/0"
+  ]
+
+  security_group_id = aws_security_group.web_server_sg.id
+}
+
 resource "aws_eip" "main_eip" {
   vpc                       = true
   instance                  = aws_instance.How_to_install_oracle_in_fedora.id
@@ -107,14 +126,27 @@ resource "aws_eip" "main_eip" {
   }
 }
 
-resource "aws_nat_gateway" "main_nat" {
-  subnet_id     = aws_subnet.main_subnet.id
-  allocation_id = aws_eip.main_eip.id
+# resource "aws_eip" "nat_eip" {
+#   vpc                       = true
+#   depends_on                = [aws_internet_gateway.main_gw]
 
-  tags = {
-      terraform = "How_to_install_oracle_in_fedora"
-  }
-}
+#   tags = {
+#       Name = "oracle_nat_ip"
+#       terraform = "How_to_install_oracle_in_fedora"
+#   }
+# }
+
+# resource "aws_nat_gateway" "main_nat" {
+#   subnet_id     = aws_subnet.main_subnet.id
+#   # allocation_id = aws_eip.main_eip.id
+#   allocation_id = aws_eip.nat_eip.id
+  
+
+#   tags = {
+#       Name = "oracle_nat"
+#       terraform = "How_to_install_oracle_in_fedora"
+#   }
+# }
 
 # resource "aws_spot_instance_request"
 
@@ -124,23 +156,30 @@ resource "aws_instance" "How_to_install_oracle_in_fedora" {
     # fedora33
     ami = "ami-0d3ac0b331a940336"
     instance_type = "t2.micro"
-    private_ip = "10.0.1.5"
+    private_ip = "10.0.2.5"
     # you use instance ssh-key name. check command *aws ec2 describe-key-pairs*.
     key_name = "id_rsa"
 
     # assign subnet to ec2
     subnet_id = aws_subnet.main_subnet.id
     
+    tags = {
+      Name = "oracle_instance"
+      terraform = "How_to_install_oracle_in_fedora"
+    }
 }
 
 resource "null_resource" "testinstance" {
 
   depends_on = [
     aws_instance.How_to_install_oracle_in_fedora
+    # ,aws_nat_gateway.main_nat
   ]
 
   connection {
-            host = aws_eip.main_eip.public_ip
+            # host = aws_eip.main_eip.public_ip
+            # host = aws_instance.How_to_install_oracle_in_fedora.public_dns
+            host = aws_instance.How_to_install_oracle_in_fedora.public_ip
             type = "ssh"
             user = "ec2_user"
             private_key = file("~/.ssh/id_rsa")
@@ -156,11 +195,11 @@ resource "null_resource" "testinstance" {
 }
 
 output "public_ip_address" {
-  value = aws_eip.main_eip.public_ip
+  value = aws_instance.How_to_install_oracle_in_fedora.public_ip
 }
 
 output "public_dns_name" {
-  value = aws_eip.main_eip.public_dns
+  value = aws_instance.How_to_install_oracle_in_fedora.public_dns
 }
 
 output "instance_id" {

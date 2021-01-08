@@ -57,7 +57,7 @@ aws ec2 describe-instance-types
 aws lightsail get-regions
 aws ecn2 describe-regions
 
-# shoe availability zone
+# show availability zone
 ## use ec2 command
 aws ec2 describe-availability-zones
 
